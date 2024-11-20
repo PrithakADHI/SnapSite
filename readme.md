@@ -10,6 +10,7 @@ This takes two terminals. One For Backend and One For Frontend
 
 ```bash
 cd frontend
+npm install
 npm run dev
 ```
 
@@ -17,6 +18,7 @@ npm run dev
 
 ```bash
 cd backend
+npm install
 npm run dev
 ```
 
