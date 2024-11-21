@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 
 import MyNav from '../Navbar/Navbar';
 
-const AddImagePage = () => {
+const EditImagePage = () => {
+  const { _id } = useParams(); 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [tags, setTags] = useState('');
@@ -12,7 +13,7 @@ const AddImagePage = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
-  
+
   const navigate = useNavigate();
 
   // Redirect to login if no token
@@ -22,6 +23,28 @@ const AddImagePage = () => {
       navigate('/');
     }
   }, [navigate]);
+
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await axios.get(`http://localhost:8000/api/images/${_id}/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const { name, description, tags } = response.data.data;
+        setName(name || ''); 
+        setDescription(description || '');
+        setTags(tags || '');
+      } catch (err) {
+        console.error('Error fetching image details:', err);
+        setError('Failed to fetch image details.');
+      }
+    };
+    if (_id) fetchData();
+  }, [_id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,26 +59,20 @@ const AddImagePage = () => {
     formData.append('description', description);
     formData.append('tags', tags);
     if (imageFile) {
-      formData.append('file', imageFile); // Attach the file
+      formData.append('file', imageFile);
     }
 
     try {
-      await axios.post(
-        'http://localhost:8000/api/images/',
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // Send the token in headers
-            'Content-Type': 'multipart/form-data', // Ensure multipart form-data is set
-          },
-        }
-      );
+      await axios.put(`http://localhost:8000/api/images/${_id}/`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setSuccess(true);
-      setName('');
-      setDescription('');
-      setImageFile(null); // Clear the form
+      navigate('/');
     } catch (err) {
-      setError('Failed to add image. Please try again.');
+      console.error('Error updating image:', err.response || err);
+      setError(err.response?.data?.message || 'Failed to update image. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -73,8 +90,8 @@ const AddImagePage = () => {
         <div className="row justify-content-center">
           <div className="col-md-6">
             <div className="card p-4">
-              <h3 className="text-center mb-4">Add New Image</h3>
-              {success && <div className="alert alert-success">Image added successfully!</div>}
+              <h3 className="text-center mb-4">Edit Image</h3>
+              {success && <div className="alert alert-success">Image updated successfully!</div>}
               {error && <div className="alert alert-danger">{error}</div>}
 
               <form onSubmit={handleSubmit}>
@@ -84,7 +101,7 @@ const AddImagePage = () => {
                     type="text"
                     className="form-control"
                     id="name"
-                    value={name}
+                    value={name || ''} 
                     onChange={(e) => setName(e.target.value)}
                     required
                   />
@@ -96,7 +113,7 @@ const AddImagePage = () => {
                     className="form-control"
                     id="description"
                     rows="3"
-                    value={description}
+                    value={description || ''} 
                     onChange={(e) => setDescription(e.target.value)}
                     required
                   ></textarea>
@@ -108,20 +125,19 @@ const AddImagePage = () => {
                     className="form-control"
                     id="tags"
                     rows="3"
-                    value={tags}
+                    value={tags || ''} 
                     onChange={(e) => setTags(e.target.value)}
                   ></textarea>
                 </div>
 
                 <div className="mb-3">
-                  <label className="form-label" htmlFor="imageFile">Upload Image</label>
+                  <label className="form-label" htmlFor="imageFile">Upload New Image (Optional)</label>
                   <input
                     type="file"
                     className="form-control"
                     id="imageFile"
-                    accept="image/*" // Restrict file type to images
+                    accept="image/*"
                     onChange={handleFileChange}
-                    required
                   />
                 </div>
 
@@ -132,7 +148,7 @@ const AddImagePage = () => {
                         <span className="visually-hidden">Loading...</span>
                       </div>
                     ) : (
-                      'Submit'
+                      'Update'
                     )}
                   </button>
                 </div>
@@ -145,4 +161,4 @@ const AddImagePage = () => {
   );
 };
 
-export default AddImagePage;
+export default EditImagePage;

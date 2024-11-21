@@ -24,6 +24,11 @@ const imageSchema = mongoose.Schema({
     userId: {
         type: String,
         required: true
+    },
+
+    tags: {
+        type: String,
+        required: false
     }
 }, {
     timestamps: true

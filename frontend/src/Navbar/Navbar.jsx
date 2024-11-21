@@ -6,6 +6,8 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {jwtDecode} from "jwt-decode";
 import axios from "axios";
+import Search from "../Search/Search";
+
 import "./Navbar.css";
 
 const getUserInfo = () => {
@@ -74,10 +76,8 @@ const MyNav = () => {
             </Nav.Link>
           ) : null}
         </Nav>
-
-        <Form className="mx-auto w-100">
-          <FormControl type="text" placeholder="Search" className="w-100" />
-        </Form>
+ 
+        <Search />
 
         <Nav className="d-flex align-items-center mx-2">
           {user ? (

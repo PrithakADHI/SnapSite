@@ -1,5 +1,5 @@
 import { Container, Row, Col, Image, Button } from 'react-bootstrap';
-import { useLocation, useNavigate } from 'react-router-dom'; 
+import { useLocation, useNavigate, Link } from 'react-router-dom'; 
 import { useState, useEffect } from 'react';
 import Spinner from 'react-bootstrap/Spinner';
 import axios from 'axios';
@@ -132,9 +132,13 @@ const SingleImage = () => {
                                 <h3>{image.name}</h3>
                                 <p>{image.description}</p>
                                 <div className="d-flex">
-                                    <Button className="me-2">Save</Button>
                                     {currentUserId === image.userId && (
+                                        <>
+                                        <Link to={`/edit/${image._id}`} className="btn btn-primary mx-1">
+                                        Edit
+                                        </Link>
                                         <Button variant="danger" onClick={deleteImage}>Delete</Button>
+                                        </>
                                     )}
                                 </div>
                             </div>
