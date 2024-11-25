@@ -32,7 +32,7 @@ const verifyLoggedIn = async (req, res, next) => {
   }
 };
 
-const verifySameUser = async (req, res, next) => {
+const verifySameUserForImage = async (req, res, next) => {
   let token;
 
   // Check for the token in the Authorization header
@@ -65,4 +65,4 @@ const verifySameUser = async (req, res, next) => {
   }
 };
 
-module.exports = {verifyLoggedIn, verifySameUser};
+module.exports = {verifyLoggedIn, verifySameUserForImage};

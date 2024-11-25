@@ -96,7 +96,7 @@ const MyNav = () => {
                 />
               </Dropdown.Toggle>
               <Dropdown.Menu>
-                <Dropdown.Item onClick={() => navigate("/profile")}>Profile</Dropdown.Item>
+                <Dropdown.Item onClick={() => navigate(`/profile/${userId.id}`)}>Profile</Dropdown.Item>
                 <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>

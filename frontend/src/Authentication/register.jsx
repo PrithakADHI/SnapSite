@@ -10,23 +10,34 @@ const RegisterPage = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [profilePicture, setProfilePicture] = useState('');
+  const [profilePictureFile, setProfilePictureFile] = useState('');
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8000/auth/register', {
-        username,
-        email,
-        password,
-        profilePicture
+      const formData = new FormData();
+      formData.append('username', username);
+      formData.append('password', password);
+      formData.append('email', email);
+      if (profilePictureFile) {
+        formData.append('file', profilePictureFile);
+      }
+      const response = await axios.post('http://localhost:8000/auth/register', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       });
       localStorage.setItem('token', response.data.token);
       navigate('/'); // Redirect after registration
     } catch (error) {
       alert('User already exists');
     }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setProfilePictureFile(file);
   };
 
   return (
@@ -38,6 +49,7 @@ const RegisterPage = () => {
         <input
           type="text"
           placeholder="Username"
+          className='form-control'
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
@@ -45,6 +57,7 @@ const RegisterPage = () => {
         <input
           type="email"
           placeholder="Email"
+          className='form-control'
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -52,15 +65,17 @@ const RegisterPage = () => {
         <input
           type="password"
           placeholder="Password"
+          className='form-control'
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
         <input
-          type="text"
-          placeholder="Profile Picture URL"
-          value={profilePicture}
-          onChange={(e) => setProfilePicture(e.target.value)}
+          type="file"
+          id="profilePictureFile"
+          className='form-control'
+          accept="image/*"
+          onChange={handleFileChange}
         />
         <button type="submit">Register</button>
       </form>

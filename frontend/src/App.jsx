@@ -8,6 +8,7 @@ import RegisterPage from './Authentication/register.jsx';
 import CreateImage from './Create/CreateImage.jsx';
 import Result from './Search/Result.jsx';
 import EditImagePage from './Edit/Edit.jsx';
+import Profile from './Profile/Profile.jsx';
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
         <Route path='/create' element={<CreateImage />} />
         <Route path='/edit/:_id' element={<EditImagePage />}/>
         <Route path='/results' element={<Result />} />
+        <Route path='/profile/:userId' element={<Profile />} />
       </Routes>
     </BrowserRouter>
   )

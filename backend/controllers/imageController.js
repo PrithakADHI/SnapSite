@@ -61,6 +61,26 @@ const readAllImages = async (req, res) => {
     }
 }
 
+const readThumbnail = async (req, res) => {
+    try {
+        const imageId = req.params.id;
+
+        // Fetch the image document from the database
+        const image = await Image.findById(imageId);
+
+        // Check if the image exists
+        if (!image) {
+            return res.status(404).json({ message: "Can't find the specified image." });
+        }
+
+        // Send the image URL in the response
+        return res.status(200).json({ thumbnailUrl: image.imageUrl });
+    } catch (error) {
+        console.error("Error fetching image:", error.message);
+        return res.status(500).json({ message: "An error occurred while fetching the image." });
+    }
+};
+
 const readImage = async (req, res) => {
     try {
         const imageId = req.params.id;
@@ -195,11 +215,33 @@ const searchImages = async (req, res) => {
     }
 }
 
+const imagesOfUser = async (req, res) => {
+    try {
+        const userId = req.body.userId;
+        
+        if (!userId) {
+            return res.status(400).json({ success: false, message: "No UserID Provided." });
+        }
+
+        const images = await Image.find({ userId });
+
+        if (images.length === 0) {
+            return res.status(404).json({ success: false, message: "No Images Found." });
+        }
+
+        return res.status(200).json({ success: true, data: images });
+    } catch (e) {
+        return res.status(500).json({ success: false, message: e.message })
+    }
+}
+
 module.exports = {
     createImage,
     readAllImages,
     readImage,
     updateImage,
     deleteImage,
-    searchImages
+    searchImages,
+    imagesOfUser,
+    readThumbnail
 }

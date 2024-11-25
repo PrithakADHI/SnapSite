@@ -1,6 +1,6 @@
 const express = require('express');
-const { createImage, readAllImages, readImage, updateImage, deleteImage, searchImages } = require('../controllers/imageController.js');
-const {verifyLoggedIn, verifySameUser} = require('../middlewares/authMiddleware.js');
+const { createImage, readAllImages, readImage, updateImage, deleteImage, searchImages, imagesOfUser, readThumbnail } = require('../controllers/imageController.js');
+const {verifyLoggedIn, verifySameUserForImage} = require('../middlewares/authMiddleware.js');
 
 const router = express.Router(); // Correct initialization of router
 
@@ -30,14 +30,16 @@ router.post('/images', verifyLoggedIn, upload.single('file'), createImage);
 // READ
 router.get('/images', readAllImages);
 router.get('/images/:id', readImage);
+router.get('/images/thumbnail/:id', readThumbnail);
 
 // UPDATE
-router.put('/images/:id', verifyLoggedIn, verifySameUser, upload.single('file'), updateImage);
+router.put('/images/:id', verifyLoggedIn, verifySameUserForImage, upload.single('file'), updateImage);
 
 // DELETE
-router.delete('/images/:id', verifySameUser, deleteImage);
+router.delete('/images/:id', verifySameUserForImage, deleteImage);
 
 // SEARCH
 router.get('/search/images', searchImages);
+router.post('/search/imageofuser', imagesOfUser);
 
 module.exports = router;

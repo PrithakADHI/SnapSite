@@ -21,6 +21,16 @@ const userSchema = new mongoose.Schema({
     profilePicture: {
         type: String,
         required: false
+    },
+
+    profilePicturePublicId: {
+        type: String,
+        required: false
+    },
+
+    savedPictures: {
+        type: Array,
+        required: false
     }
 });
 
