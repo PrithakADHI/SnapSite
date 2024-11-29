@@ -7,12 +7,39 @@
     font-size: 1.5em;
   }
 
-.logo {
-  cursor: pointer;
-  color: #F7EBEC;
-}
+  .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    color: #f8f9fa;
+  }
+  
+  .searchbar {
+    width: 88%;
+  }
 
-
-.nav {
-  background-color: #1D1E2C;
-}
+  .navbar {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .nav-link {
+    transition: color 0.2s ease-in-out;
+  }
+  
+  .nav-link:hover {
+    color: #0d6efd !important;
+  }
+  
+  .dropdown-menu {
+    background-color: #343a40;
+    border: none;
+  }
+  
+  .dropdown-item {
+    color: #f8f9fa;
+  }
+  
+  .dropdown-item:hover {
+    background-color: #495057;
+  }
+  

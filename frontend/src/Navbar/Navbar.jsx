@@ -1,13 +1,11 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
-import { Navbar, Nav, Form, FormControl, Button, Spinner, Dropdown } from "react-bootstrap";
+import { Navbar, Nav, Button, Spinner, Dropdown, Offcanvas, Image } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus, faSearch, faSignInAlt, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import "bootstrap/dist/css/bootstrap.min.css";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import Search from "../Search/Search";
-
 import "./Navbar.css";
 
 const getUserInfo = () => {
@@ -26,7 +24,7 @@ const getUserInfo = () => {
 
 const handleLogout = () => {
   localStorage.removeItem("token");
-  window.location.reload(); // Reload the page after logging out
+  window.location.reload();
 };
 
 const MyNav = () => {
@@ -60,58 +58,58 @@ const MyNav = () => {
   }, [userId]);
 
   return (
-    <Navbar expand="lg" className="px-3 z-1 nav">
-      <Navbar.Brand onClick={() => navigate("/")} className="d-flex justify-content-center">
-        <p className="londrina-sketch-regular m-0 logo">SnapSite</p>
+    <Navbar bg="dark" variant="dark" expand="lg" className="py-3">
+      <Navbar.Brand onClick={() => navigate("/")} className="px-3">
+        <p className="m-0 logo londrina-sketch-regular">SnapSite</p>
       </Navbar.Brand>
 
-      <Navbar.Toggle aria-controls="basic-navbar-nav" />
-      <Navbar.Collapse id="basic-navbar-nav">
-        <Nav className="mr-auto">
+      <Navbar.Toggle aria-controls="offcanvas-navbar" />
+      <Navbar.Offcanvas id="offcanvas-navbar" placement="end" style={{ width: "70%" }}>
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title className="londrina-sketch-regular">SnapSite</Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          <Nav className="me-auto searchbar">
+            <Search />
+          </Nav>
+          <Nav>
           {loading ? (
-            <Spinner animation="border" role="status" size="sm" style={{ color: "white" }} />
-          ) : user ? (
-            <Nav.Link onClick={() => navigate("/create")}>
-              <FontAwesomeIcon icon={faPlus} className="mr-2 logo" />
-            </Nav.Link>
-          ) : null}
-        </Nav>
- 
-        <Search />
-
-        <Nav className="d-flex align-items-center mx-2">
-          {user ? (
-            <Dropdown align="end">
-              <Dropdown.Toggle
-                as="div"
-                style={{ cursor: "pointer" }}
-                className="d-flex align-items-center"
-              >
-                <img
-                  src={user?.profilePicture || "https://i.pinimg.com/736x/a3/98/a9/a398a928bf4112234757a4adc2376d4c.jpg"}
-                  className="rounded-circle"
-                  alt="Profile"
-                  width={50}
-                  height={50}
-                />
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                <Dropdown.Item onClick={() => navigate(`/profile/${userId.id}`)}>Profile</Dropdown.Item>
-                <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-          ) : (
-            <>
-              <Button onClick={() => navigate("/login")} variant="outline-primary" className="mx-2">
-                Login
-              </Button>
-              <Button onClick={() => navigate("/register")} variant="outline-success" className="mx-2">
-                Register
-              </Button>
-            </>
-          )}
-        </Nav>
-      </Navbar.Collapse>
+              <Spinner animation="border" size="sm" />
+            ) : user ? (
+              <Nav.Link onClick={() => navigate("/create")} className="">
+                <span>+</span>
+              </Nav.Link>
+            ) : null}
+            {user ? (
+              <Dropdown align="end">
+                <Dropdown.Toggle as="div" style={{ cursor: "pointer" }}>
+                  <Image
+                    src={user?.profilePicture || "https://i.pinimg.com/736x/a3/98/a9/a398a928bf4112234757a4adc2376d4c.jpg"}
+                    roundedCircle
+                    width={40}
+                    height={40}
+                  />
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  
+                  <Dropdown.Item onClick={() => navigate(`/profile/${userId.id}`)}>Profile</Dropdown.Item>
+                  <Dropdown.Divider />
+                  <Dropdown.Item onClick={handleLogout}>Logout</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            ) : (
+              <>
+                <Button onClick={() => navigate("/login")} variant="outline-primary" className="me-2">
+                  Login
+                </Button>
+                <Button onClick={() => navigate("/register")} variant="outline-success">
+                  Register
+                </Button>
+              </>
+            )}
+          </Nav>
+        </Offcanvas.Body>
+      </Navbar.Offcanvas>
     </Navbar>
   );
 };

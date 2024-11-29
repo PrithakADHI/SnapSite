@@ -49,7 +49,7 @@ const RegisterPage = () => {
         <input
           type="text"
           placeholder="Username"
-          className='form-control'
+          className='form-control mb-3'
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           required
@@ -57,7 +57,7 @@ const RegisterPage = () => {
         <input
           type="email"
           placeholder="Email"
-          className='form-control'
+          className='form-control mb-3'
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -65,7 +65,7 @@ const RegisterPage = () => {
         <input
           type="password"
           placeholder="Password"
-          className='form-control'
+          className='form-control mb-3'
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -73,7 +73,7 @@ const RegisterPage = () => {
         <input
           type="file"
           id="profilePictureFile"
-          className='form-control'
+          className='form-control mb-3'
           accept="image/*"
           onChange={handleFileChange}
         />

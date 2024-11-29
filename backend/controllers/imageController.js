@@ -48,18 +48,38 @@ const createImage = async (req, res) => {
 
 const readAllImages = async (req, res) => {
     try {
-    const allImages = await Image.find();
-    return res.status(200).json({
-        success: true,
-        data: allImages
-    });
+        const page = parseInt(req.query.page, 10) || 1; // Default to page 1
+        const limit = parseInt(req.query.limit, 10) || 20; // Default limit to 20 images per request
+
+        // Aggregation pipeline to ensure unique images and randomize results
+        const allImages = await Image.aggregate([
+            {
+                $group: {
+                    _id: "$_id", // Ensure unique images based on their `_id` field
+                    data: { $first: "$$ROOT" }, // Pick the first occurrence
+                },
+            },
+            { $replaceRoot: { newRoot: "$data" } }, // Replace root to flatten the object
+            { $sample: { size: limit } }, // Randomly select `limit` number of images
+        ]);
+
+        return res.status(200).json({
+            success: true,
+            data: allImages,
+            currentPage: page,
+            hasMore: allImages.length === limit, // Indicate if more images are likely available
+        });
     } catch (e) {
         return res.status(500).json({
             success: false,
-            message: `Error: ${e}`
+            message: `Error: ${e}`,
         });
     }
-}
+};
+
+
+
+
 
 const readThumbnail = async (req, res) => {
     try {

@@ -148,56 +148,71 @@ router.put('/user/:id/', upload.single('file'), async (req, res) => {
     const updatedData = req.body;
     const file = req.file;
 
+    // Find user by ID
     const user = await User.findById(id);
     if (!user) {
-      return res.status(404).json({ message: "User not found." });
+      return res.status(404).json({ success: false, message: "User not found." });
     }
 
-    // If there's a file, update the profile picture
+    // Update profile picture if a file is uploaded
     if (file) {
       if (user.profilePicturePublicId) {
-        await cloudinary.uploader.destroy(user.profilePicturePublicId);
+        await cloudinary.uploader.destroy(user.profilePicturePublicId); // Delete old picture
       }
 
       const uploadResult = await cloudinary.uploader.upload(file.path, {
         folder: 'profile_pictures',
-        resource_type: 'image'
+        resource_type: 'image',
       });
 
-      updatedData.profilePicture = uploadResult.secure_url;
-      updatedData.profilePicturePublicId = uploadResult.public_id;
+      user.profilePicture = uploadResult.secure_url;
+      user.profilePicturePublicId = uploadResult.public_id;
 
+      // Clean up local file
       fs.unlinkSync(file.path);
     }
 
-    // Handle saving picture
+    // Handle adding/removing saved pictures
     if (updatedData.savedPictureId) {
       if (!user.savedPictures.includes(updatedData.savedPictureId)) {
-        user.savedPictures.push(updatedData.savedPictureId);
+        user.savedPictures.push(updatedData.savedPictureId); // Add picture
       }
+    } else if (updatedData.removePictureId) {
+      user.savedPictures = user.savedPictures.filter(
+        (id) => id !== updatedData.removePictureId
+      ); // Remove picture
     }
 
-    await user.save();
+    // Update following list
+    if (updatedData.following) {
+      const updatedFollowing = JSON.parse(updatedData.following); // Parse if sent as a string
+      user.following = updatedFollowing;
+    }
 
-    // Update other user data
-    const updatedUser = await User.findByIdAndUpdate(id, updatedData, {
-      new: true,
-      runValidators: true
-    });
+    // Update followers list
+    if (updatedData.followers) {
+      const updatedFollowers = JSON.parse(updatedData.followers); // Parse if sent as a string
+      user.followers = updatedFollowers;
+    }
+
+    // Save the updated user document
+    await user.save();
 
     return res.status(200).json({
       success: true,
-      data: updatedUser
+      data: user, // Return the updated user object
     });
 
   } catch (error) {
-    console.error(error.message);
+    console.error("Error updating user:", error.message);
     return res.status(500).json({
       success: false,
-      message: `Error: ${error.message}`
+      message: `Error: ${error.message}`,
     });
   }
 });
+
+
 
 
 module.exports = router;

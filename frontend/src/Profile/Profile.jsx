@@ -1,18 +1,38 @@
-import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import React, { useEffect, useState, useMemo } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import Masonry from "react-masonry-css";
+import Masonry from "../Masonry/Masonry";
 import MyNav from "../Navbar/Navbar";
-import "bootstrap/dist/css/bootstrap.min.css";
+import { jwtDecode } from "jwt-decode"; // Fixed import
 import "./profile.css";
+
+const getUserInfo = () => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    return null;
+  }
+
+  try {
+    return jwtDecode(token);
+  } catch (error) {
+    console.error("Invalid token:", error);
+    localStorage.removeItem("token");
+    return null;
+  }
+};
 
 const Profile = () => {
   const { userId } = useParams();
+  const currentUser = useMemo(() => getUserInfo(), []);
   const [user, setUser] = useState(null);
   const [images, setImages] = useState([]);
   const [savedImages, setSavedImages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [followers, setFollowers] = useState([]);
+  const [following, setFollowing] = useState([]);
+  const navigate = useNavigate();
 
   const breakpointColumnsObj = {
     default: 5,
@@ -24,38 +44,42 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
+        setLoading(true);
+
         // Fetch user details
         const response = await axios.get(
           `http://localhost:8000/auth/user/${userId}/`
         );
+
         if (response.data.success) {
           setUser(response.data.data);
+          setFollowing(response.data.data.following || []);
+          setFollowers(response.data.data.followers || []);
         } else {
-          setError("Failed to fetch user data.");
+          throw new Error("Failed to fetch user data.");
         }
 
         // Fetch user's uploaded images
         const getImages = await axios.post(
           `http://localhost:8000/api/search/imageofuser`,
-          { userId: userId }
+          { userId }
         );
+
         if (getImages.data.success) {
           setImages(getImages.data.data);
-        } else {
-          console.log("No images found for the user.");
         }
 
         // Fetch saved images for the user
-        if (response.data.data.savedPictures) {
-          const savedImagesPromises = response.data.data.savedPictures.map(
-            async (imageId) => {
+        const savedPictures = response.data.data.savedPictures || [];
+        if (savedPictures.length > 0) {
+          const savedImagesData = await Promise.all(
+            savedPictures.map(async (imageId) => {
               const imageResponse = await axios.get(
                 `http://localhost:8000/api/images/${imageId}/`
               );
-              return imageResponse.data.data; // Assuming it returns the image URL and other data
-            }
+              return imageResponse.data.data;
+            })
           );
-          const savedImagesData = await Promise.all(savedImagesPromises);
           setSavedImages(savedImagesData);
         }
       } catch (err) {
@@ -68,6 +92,38 @@ const Profile = () => {
 
     fetchUserData();
   }, [userId]);
+
+  const handleFollowToggle = async () => {
+    if (!user || !currentUser) return;
+
+    try {
+      const isFollowing = followers.includes(currentUser.id);
+
+      // Update the logged-in user's `following` array
+      const updatedFollowing = isFollowing
+        ? following.filter((id) => id !== userId)
+        : [...following, userId];
+
+      // Update the visited user's `followers` array
+      const updatedFollowers = isFollowing
+        ? followers.filter((id) => id !== currentUser.id)
+        : [...followers, currentUser.id];
+
+      // Make API calls to update both arrays
+      await Promise.all([
+        axios.put(`http://localhost:8000/auth/user/${currentUser.id}/`, {
+          following: JSON.stringify(updatedFollowing),
+        }),
+        axios.put(`http://localhost:8000/auth/user/${userId}/`, {
+          followers: JSON.stringify(updatedFollowers),
+        }),
+      ]);
+
+      setFollowers(updatedFollowers);
+    } catch (err) {
+      console.error("Failed to update follow status:", err);
+    }
+  };
 
   if (loading) {
     return (
@@ -93,7 +149,6 @@ const Profile = () => {
     <>
       <MyNav />
       <div className="container profile text-center py-5">
-        {/* User Profile Picture */}
         <img
           src={
             user?.profilePicture ||
@@ -104,53 +159,38 @@ const Profile = () => {
           style={{ width: "150px", height: "150px", objectFit: "cover" }}
         />
         <h3>{user?.username || "Unknown User"}</h3>
+
+        {(currentUser?.id !== userId) && (currentUser) && (
+          <div>
+            <button
+              onClick={handleFollowToggle}
+              type="button"
+              className={`btn ${
+                followers.includes(currentUser?.id)
+                  ? "btn-outline-danger"
+                  : "btn-outline-primary"
+              } mb-2`}
+            >
+              {followers.includes(currentUser?.id) ? "Unfollow" : "Follow"}
+            </button>
+          </div>
+        )}
+        <p>
+          Following: {following.length} Followers: {followers.length}
+        </p>
       </div>
 
-      {/* Saved Pictures Section */}
+      {/* Saved Images Section */}
       <div className="container">
-        <h4 className="mb-4">Saved Images</h4>
-        <Masonry
-          breakpointCols={breakpointColumnsObj}
-          className="my-masonry-grid"
-          columnClassName="my-masonry-grid_column"
-        >
-          {savedImages.map((image, index) => (
-  <div key={image._id || `saved-${image.thumbnailId || index}`} className="image-container">
-    <Link to={`/image`} state={{ image }}>
-      <img
-        src={image.imageUrl}
-        alt="Saved Image"
-        className="image-item"
-        style={{ borderRadius: "10px", maxWidth: "100%" }}
-      />
-    </Link>
-  </div>
-))}
-        </Masonry>
+        {savedImages.length > 0 && <h4 className="mb-4">Saved Images</h4>}
       </div>
+      <Masonry images={savedImages} breakpointColumnsObj={breakpointColumnsObj} />
 
       {/* Uploaded Images Section */}
       <div className="container">
-        <h4 className="mb-4">Uploaded Images</h4>
-        <Masonry
-          breakpointCols={breakpointColumnsObj}
-          className="my-masonry-grid"
-          columnClassName="my-masonry-grid_column"
-        >
-          {images.map((image, index) => (
-  <div key={image._id || `uploaded-${image.id || index}`} className="image-container">
-    <Link to={`/image`} state={{ image }}>
-      <img
-        src={image.imageUrl}
-        alt={image.description}
-        className="image-item"
-        style={{ borderRadius: "10px", maxWidth: "100%" }}
-      />
-    </Link>
-  </div>
-))}
-        </Masonry>
+        {images.length > 0 && <h4 className="mb-4">Uploaded Images</h4>}
       </div>
+      <Masonry images={images} breakpointColumnsObj={breakpointColumnsObj} />
     </>
   );
 };

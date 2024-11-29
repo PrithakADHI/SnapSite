@@ -52,6 +52,7 @@ const AddImagePage = () => {
       );
       setSuccess(true);
       setName('');
+      setTags('');
       setDescription('');
       setImageFile(null); // Clear the form
     } catch (err) {

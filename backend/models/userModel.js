@@ -31,6 +31,16 @@ const userSchema = new mongoose.Schema({
     savedPictures: {
         type: Array,
         required: false
+    },
+
+    followers: {
+        type: Array,
+        required: false
+    },
+
+    following: {
+        type: Array,
+        required: false
     }
 });
 
