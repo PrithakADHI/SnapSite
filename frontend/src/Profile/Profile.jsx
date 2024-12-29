@@ -176,21 +176,37 @@ const Profile = () => {
           </div>
         )}
         <p>
-          Following: {following.length} Followers: {followers.length}
-        </p>
+  Following: {following?.length || 0} Followers: {followers?.length || 0}
+</p>
+
       </div>
 
       {/* Saved Images Section */}
-      <div className="container">
-        {savedImages.length > 0 && <h4 className="mb-4">Saved Images</h4>}
-      </div>
-      <Masonry images={savedImages} breakpointColumnsObj={breakpointColumnsObj} />
+<div className="container">
+  {savedImages?.length > 0 ? (
+    <>
+      <h4 className="mb-4">Saved Images</h4>
+      <Masonry
+        images={savedImages}
+        breakpointColumnsObj={breakpointColumnsObj}
+      />
+    </>
+  ) : (
+    <p className="text-muted">No saved images to display.</p>
+  )}
+</div>
 
-      {/* Uploaded Images Section */}
-      <div className="container">
-        {images.length > 0 && <h4 className="mb-4">Uploaded Images</h4>}
-      </div>
+{/* Uploaded Images Section */}
+<div className="container">
+  {images?.length > 0 ? (
+    <>
+      <h4 className="mb-4">Uploaded Images</h4>
       <Masonry images={images} breakpointColumnsObj={breakpointColumnsObj} />
+    </>
+  ) : (
+    <p className="text-muted">No uploaded images to display.</p>
+  )}
+</div>
     </>
   );
 };
