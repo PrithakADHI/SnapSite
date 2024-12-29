@@ -11,8 +11,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 const corsOptions = {
-    'origin': ['https://snapsite-tau.vercel.app']
-}
+    origin: ['https://snapsite-tau.vercel.app', 'https://snap-site-tawny.vercel.app'], // Allow both origins
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Explicitly allow HTTP methods
+    credentials: true, // Allow credentials (optional, depending on your use case)
+};  
 
 app.use(cors(corsOptions));
 
