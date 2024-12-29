@@ -9,7 +9,12 @@ require('dotenv').config();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cors());
+
+const corsOptions = {
+    'origin': ['https://snapsite-tau.vercel.app']
+}
+
+app.use(cors(corsOptions));
 
 app.use('/api/', imageRoutes);
 app.use('/auth', authRoutes)
