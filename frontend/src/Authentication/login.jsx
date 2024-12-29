@@ -15,7 +15,7 @@ const LoginPage = () => {
     e.preventDefault();
     console.log(email, password);
     try {
-      const response = await axios.post('http://localhost:8000/auth/login', { email, password });
+      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}auth/login`, { email, password });
       localStorage.setItem('token', response.data.token);
       navigate('/');
     } catch (error) {

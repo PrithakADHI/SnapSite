@@ -25,7 +25,7 @@ const SearchForm = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8000/api/search/images/?query=${encodeURIComponent(query)}`
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}api/search/images/?query=${encodeURIComponent(query)}`
       );
       const data = await response.json();
 

@@ -41,7 +41,7 @@ const AddImagePage = () => {
 
     try {
       await axios.post(
-        'http://localhost:8000/api/images/',
+        `${import.meta.env.VITE_REACT_APP_BACKEND_URL}api/images/`,
         formData,
         {
           headers: {

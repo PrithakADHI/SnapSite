@@ -34,7 +34,7 @@ const Home = () => {
                 setLoadingMore(true);
 
                 const response = await axios.get(
-                    `http://localhost:8000/api/images?page=${page}&limit=3`
+                    `${import.meta.env.VITE_REACT_APP_BACKEND_URL}api/images?page=${page}&limit=3`
                 );
 
                 if (response.data.success) {

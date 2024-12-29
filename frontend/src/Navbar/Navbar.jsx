@@ -42,7 +42,7 @@ const MyNav = () => {
       isFetching.current = true;
       setLoading(true);
       try {
-        const response = await axios.get(`http://localhost:8000/auth/user/${userId.id}/`);
+        const response = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}auth/user/${userId.id}/`);
         if (response.data.success) {
           setUser(response.data.data);
         }

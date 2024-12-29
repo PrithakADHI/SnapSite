@@ -23,7 +23,7 @@ const RegisterPage = () => {
       if (profilePictureFile) {
         formData.append('file', profilePictureFile);
       }
-      const response = await axios.post('http://localhost:8000/auth/register', formData, {
+      const response = await axios.post(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}auth/register`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

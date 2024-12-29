@@ -48,7 +48,7 @@ const Profile = () => {
 
         // Fetch user details
         const response = await axios.get(
-          `http://localhost:8000/auth/user/${userId}/`
+          `${import.meta.env.VITE_REACT_APP_BACKEND_URL}auth/user/${userId}/`
         );
 
         if (response.data.success) {
@@ -61,7 +61,7 @@ const Profile = () => {
 
         // Fetch user's uploaded images
         const getImages = await axios.post(
-          `http://localhost:8000/api/search/imageofuser`,
+          `${import.meta.env.VITE_REACT_APP_BACKEND_URL}api/search/imageofuser`,
           { userId }
         );
 
@@ -75,7 +75,7 @@ const Profile = () => {
           const savedImagesData = await Promise.all(
             savedPictures.map(async (imageId) => {
               const imageResponse = await axios.get(
-                `http://localhost:8000/api/images/${imageId}/`
+                `${import.meta.env.VITE_REACT_APP_BACKEND_URL}api/images/${imageId}/`
               );
               return imageResponse.data.data;
             })
@@ -111,10 +111,10 @@ const Profile = () => {
 
       // Make API calls to update both arrays
       await Promise.all([
-        axios.put(`http://localhost:8000/auth/user/${currentUser.id}/`, {
+        axios.put(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}auth/user/${currentUser.id}/`, {
           following: JSON.stringify(updatedFollowing),
         }),
-        axios.put(`http://localhost:8000/auth/user/${userId}/`, {
+        axios.put(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}auth/user/${userId}/`, {
           followers: JSON.stringify(updatedFollowers),
         }),
       ]);

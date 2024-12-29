@@ -43,7 +43,7 @@ const SingleImage = () => {
             }
     
             try {
-                const response = await axios.get(`http://localhost:8000/auth/user/${image.userId}/`);
+                const response = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}auth/user/${image.userId}/`);
                 if (response.data.success) {
                     setUser(response.data.data);
                 }
@@ -58,7 +58,7 @@ const SingleImage = () => {
         const fetchSaved = async () => {
             try {
                 if (currentUserId) {
-                    const response = await axios.get(`http://localhost:8000/auth/user/${currentUserId}`);
+                    const response = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}auth/user/${currentUserId}`);
                     if (!response.data.success) return;
 
                     if (Array.isArray(response.data.data.savedPictures) && response.data.data.savedPictures.includes(image._id)) {
@@ -81,7 +81,7 @@ const SingleImage = () => {
     
         try {
             const response = await axios.put(
-                `http://localhost:8000/auth/user/${currentUserId}/`,
+                `${import.meta.env.VITE_REACT_APP_BACKEND_URL}auth/user/${currentUserId}/`,
                 { savedPictureId: image._id },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -102,7 +102,7 @@ const SingleImage = () => {
     
         try {
             const response = await axios.put(
-                `http://localhost:8000/auth/user/${currentUserId}/`,
+                `${import.meta.env.VITE_REACT_APP_BACKEND_URL}auth/user/${currentUserId}/`,
                 { removePictureId: image._id }, // Send the image ID to remove
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -123,7 +123,7 @@ const SingleImage = () => {
         if (!token) return;
 
         try {
-            await axios.delete(`http://localhost:8000/api/images/${image._id}/`, {
+            await axios.delete(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}api/images/${image._id}/`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             navigate(-1);

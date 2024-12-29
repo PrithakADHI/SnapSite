@@ -29,7 +29,7 @@ const EditImagePage = () => {
     const fetchData = async () => {
       const token = localStorage.getItem('token');
       try {
-        const response = await axios.get(`http://localhost:8000/api/images/${_id}/`, {
+        const response = await axios.get(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}api/images/${_id}/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -63,7 +63,7 @@ const EditImagePage = () => {
     }
 
     try {
-      await axios.put(`http://localhost:8000/api/images/${_id}/`, formData, {
+      await axios.put(`${import.meta.env.VITE_REACT_APP_BACKEND_URL}api/images/${_id}/`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
