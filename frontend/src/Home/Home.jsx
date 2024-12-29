@@ -44,6 +44,7 @@ const Home = () => {
                     setHasMore(response.data.hasMore);
                 } else {
                     setError('Failed to fetch images');
+                    console.log(response.data);
                 }
             } catch (err) {
                 setError(err.message);
