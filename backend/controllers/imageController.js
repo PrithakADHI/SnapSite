@@ -2,8 +2,9 @@ const Image = require('../models/imageModel.js');
 const mongoose = require('mongoose');
 
 const cloudinary = require('../cloudinaryConfig.js');
+
+const streamifier = require('streamifier');
 // CREATE
-const fs = require('fs');
 
 const createImage = async (req, res) => {
     try {
@@ -17,18 +18,31 @@ const createImage = async (req, res) => {
             });
         }
 
-        const uploadResult = await cloudinary.uploader.upload(file.path, {
-            folder: 'images',
-            resource_type: 'image'
-        });
+        const streamUpload = (fileBuffer) => {
+            return new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    {
+                        folder: 'images',
+                        resource_type: 'image'
+                    },
+                    (error, result) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve(result);
+                    }
+                }
+            );
+            streamifier.createReadStream(fileBuffer).pipe(stream);
+            });
+        };
+
+        const uploadResult = await streamUpload(file.buffer);
 
         req.body.imageUrl = uploadResult.secure_url;
         req.body.publicId = uploadResult.public_id;
 
         const newImage = await Image.create(req.body);
-
-        // Delete local file
-        fs.unlinkSync(file.path);
 
         return res.status(201).json({
             success: true,
@@ -143,18 +157,32 @@ const updateImage = async (req, res) => {
                 await cloudinary.uploader.destroy(image.publicId);
             }
 
+            const streamUpload = (fileBuffer) => {
+                return new Promise((resolve, reject) => {
+                    const stream = cloudinary.uploader.upload_stream(
+                        {
+                            folder: 'images',
+                            resource_type: 'image'
+                        },
+                        (error, result) => {
+                            if (error) {
+                                reject(error);
+                            } else {
+                                resolve(result);
+                            }
+                        }
+                    );
+                    streamifier.createReadStream(fileBuffer).pipe(stream);
+                })
+            }
+
             // Upload the new image to Cloudinary
-            const uploadResult = await cloudinary.uploader.upload(file.path, {
-                folder: 'images',
-                resource_type: 'image',
-            });
+            const uploadResult = await streamUpload(file.buffer);
 
             // Add the new image URL and public ID to the update data
             updatedData.imageUrl = uploadResult.secure_url;
             updatedData.publicId = uploadResult.public_id;
 
-            // Delete local file
-            fs.unlinkSync(file.path);
         }
 
         // Update the image document in the database with the new data
@@ -246,7 +274,7 @@ const imagesOfUser = async (req, res) => {
         const images = await Image.find({ userId });
 
         if (images.length === 0) {
-            return res.status(404).json({ success: false, message: "No Images Found." });
+            return res.status(200).json({ success: true, message: [] });
         }
 
         return res.status(200).json({ success: true, data: images });

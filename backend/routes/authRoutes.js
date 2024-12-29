@@ -8,22 +8,10 @@ const router = express.Router();
 
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
+const streamifier = require('streamifier')
 
 // Set up storage for uploaded files
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      const uploadPath = './uploads';
-      if (!fs.existsSync(uploadPath)) {
-        fs.mkdirSync(uploadPath);
-      }
-      cb(null, uploadPath); // Directory to store files
-    },
-    filename: (req, file, cb) => {
-      cb(null, `${Date.now()}-${file.originalname}`); // Custom filename
-    },
-  });
-
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // Helper function to create a JWT token
@@ -46,10 +34,27 @@ router.post('/register', upload.single('file'), async (req, res) => {
       });
     }
 
-    const uploadResult = await cloudinary.uploader.upload(file.path, {
-      folder: 'profile_pictures',
-      resource_type: 'image'
-    });
+    // Stream the file to Cloudinary
+    const streamUpload = (fileBuffer) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: 'profile_pictures',
+            resource_type: 'image',
+          },
+          (error, result) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(result);
+            }
+          }
+        );
+        streamifier.createReadStream(fileBuffer).pipe(stream);
+      });
+    };
+
+    const uploadResult = await streamUpload(file.buffer);
 
     // Check if user already exists
     const userExists = await User.findOne({ email });
@@ -169,7 +174,7 @@ router.put('/user/:id/', upload.single('file'), async (req, res) => {
       user.profilePicturePublicId = uploadResult.public_id;
 
       // Clean up local file
-      fs.unlinkSync(file.path);
+
     }
 
     // Handle adding/removing saved pictures

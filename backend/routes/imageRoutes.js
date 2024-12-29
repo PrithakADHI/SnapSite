@@ -9,19 +9,7 @@ const path = require('path');
 const fs = require('fs');
 
 // Set up storage for uploaded files
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      const uploadPath = './uploads';
-      if (!fs.existsSync(uploadPath)) {
-        fs.mkdirSync(uploadPath);
-      }
-      cb(null, uploadPath); // Directory to store files
-    },
-    filename: (req, file, cb) => {
-      cb(null, `${Date.now()}-${file.originalname}`); // Custom filename
-    },
-  });
-
+const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // CREATE
